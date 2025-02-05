@@ -1,19 +1,45 @@
-// Importa o módulo http do Node.js
 const http = require('http');
+const fs = require('fs');  // Para ler arquivos
+const path = require('path');  // Para trabalhar com caminhos de arquivos
 
-// Define a porta em que o servidor irá escutar
 const port = 3000;
 
-// Cria o servidor
 const server = http.createServer((req, res) => {
-  // Define o cabeçalho da resposta
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  if (req.url === '/') {
+    // Caminho para o arquivo HTML
+    const filePath = path.join(__dirname, 'index.html');
 
-  // Responde com uma mensagem simples
-  res.end('Olá, este é o seu servidor simples em JavaScript!');
+    // Lê o arquivo HTML e envia como resposta
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Erro ao carregar a página');
+        return;
+      }
+
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(data);
+    });
+  } else if (req.url === '/style.css') {
+    // Servir o arquivo CSS
+    const filePath = path.join(__dirname, 'style.css');
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Erro ao carregar o CSS');
+        return;
+      }
+
+      res.writeHead(200, { 'Content-Type': 'text/css' });
+      res.end(data);
+    });
+  } else {
+    // Caso a URL não seja encontrada
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Página não encontrada');
+  }
 });
 
-// Faz o servidor escutar na porta 3000
 server.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });
